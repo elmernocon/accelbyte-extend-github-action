@@ -1,0 +1,43 @@
+name: "Install Extend Helper CLI"
+description: "Installs the AccelByte Extend Helper CLI."
+author: "elmernocon@gmail.com"
+
+branding:
+  icon: "code"
+  color: "blue"
+
+inputs:
+  architecture:
+    description: "Extend Helper CLI Architecture release: Default: amd64"
+    required: false
+    default: "amd64"
+  os:
+    description: "Extend Helper CLI OS release. Default: linux"
+    required: false
+    default: "linux"
+  version:
+    description: "Extend Helper CLI version (e.g., v0.0.1). If not set, latest is used."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Install Extend Helper CLI"
+      id: "install"
+      shell: "bash"
+      run: |
+        chmod +x "${{ github.action_path }}/entrypoint.sh"
+        OUTPUT=$( "${{ github.action_path }}/entrypoint.sh" "${{ inputs.version }}" "${{ inputs.os }}" "${{ inputs.architecture }}" )
+        VERSION=$(echo "$OUTPUT" | awk '{print $1}')
+        PATH=$(echo "$OUTPUT" | awk '{print $2}')
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "path=$PATH" >> "$GITHUB_OUTPUT"
+
+outputs:
+  path:
+    description: "The absolute path to the Extend Helper CLI executable."
+    value: ${{ steps.install.outputs.path }}
+  version:
+    description: "The installed Extend Helper CLI version."
+    value: ${{ steps.install.outputs.version }}
